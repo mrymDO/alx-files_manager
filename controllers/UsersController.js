@@ -17,10 +17,10 @@ class UsersController {
       }
       const hashedPassword = sha1(password);
       const insertedUser = await dbClient.insertUser({ email, password: hashedPassword });
-      res.status(201).json({ email: insertedUser.email, id: insertedUser._id });
+      return res.status(201).json({ email: insertedUser.email, id: insertedUser._id });
     } catch (error) {
       console.error(error);
-      res.status(500).json({ error: 'Internal Server Error' });
+      return res.status(500).json({ error: 'Internal Server Error' });
     }
   }
 }
