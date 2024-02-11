@@ -33,7 +33,19 @@ class DBClient {
   async filesCollection() {
     return this.client.db().collection('files');
   }
+
+  async getUserByEmail(email) {
+    const usersCollection = this.client.db().collection('users');
+    const user = await usersCollection.findOne({ email });
+    return user;
+  }
+
+  async insertUser(user) {
+    const usersCollection = this.client.db().collection('users');
+    const result = await usersCollection.insertOne(user);
+    return result.ops[0];
+  }
 }
 
-export const dbClient = new DBClient();
-export default dbClient;
+const dbClient = new DBClient();
+module.exports =  dbClient;
