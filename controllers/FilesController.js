@@ -83,7 +83,7 @@ class FilesController {
 
       const folder = await getFile({
         _id: ObjectId(parentId),
-        userId: user._id,
+        userId: ObjectId(user._id),
       });
 
       if (!folder || folder.type !== 'folder') { return res.status(200).send([]); }
@@ -143,6 +143,7 @@ class FilesController {
 
     const file = await getFile({
       _id: ObjectId(fileId),
+      userId: ObjectId(user._id),
     });
 
     if (!file || !isOwnerAndPublic(file, user._id)) { return res.status(404).send({ error: 'Not found' }); }
