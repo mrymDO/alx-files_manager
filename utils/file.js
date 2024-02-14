@@ -105,8 +105,8 @@ export async function saveFile(userId, fileParams, FOLDER_PATH) {
     }
   }
 
-  const result = await dbClient.filesCollection().insertOne(query);
-
+  const files = await dbClient.filesCollection();
+  const result = await files.insertOne(query);
   const file = processFile(query);
 
   const newFile = { id: result.insertedId, ...file };
