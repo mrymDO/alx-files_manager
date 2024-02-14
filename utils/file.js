@@ -3,6 +3,12 @@ import { v4 as uuidv4 } from 'uuid';
 import { promises as fsPromises } from 'fs';
 import dbClient from './db';
 
+async function getFile(query) {
+  const files = await dbClient.filesCollection();
+  const file = files.findOne(query);
+  return file;
+}
+
 export function isValidId(id) {
   try {
     ObjectId(id);
@@ -34,7 +40,7 @@ export async function validateBody(request) {
     let file = null;
 
     if (isValidId(parentId)) {
-      file = await this.getFile({
+      file = await getFile({
         _id: ObjectId(parentId),
       });
     }
