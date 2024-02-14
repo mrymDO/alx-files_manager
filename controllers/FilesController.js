@@ -6,7 +6,7 @@ const FOLDER_PATH = process.env.FOLDER_PATH || '/tmp/files_manager';
 class FilesController {
   static async postUpload(req, res) {
     const xToken = req.header('X-Token') || '';
-    const user = getUserByToken(xToken);
+    const user = await getUserByToken(xToken);
     if (!user) {
       return res.status(401).send({ error: 'Unauthorized' });
     }
