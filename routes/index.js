@@ -12,6 +12,6 @@ router.post('/users', UsersController.postNew);
 router.get('/connect', AuthControllers.getConnect);
 router.get('/disconnect', AuthControllers.getDisconnect);
 router.get('/users/me', UsersController.getMe);
-router.get('/files', FilesController.postUpload);
+router.post('/files', FilesController.postUpload);
 
 module.exports = router;
