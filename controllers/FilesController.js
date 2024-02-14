@@ -3,6 +3,7 @@ import { getUserByToken } from '../utils/user';
 import {
   validateBody, getFile, processFile,
   isValidId, saveFile, getFilesOfParentId,
+  publishUnpublish,
 } from '../utils/file';
 
 const FOLDER_PATH = process.env.FOLDER_PATH || '/tmp/files_manager';
@@ -102,6 +103,28 @@ class FilesController {
     });
 
     return res.status(200).send(fileList);
+  }
+
+  static async putPublish(req, res) {
+    const { error, code, updatedFile } = await publishUnpublish(
+      req,
+      true,
+    );
+
+    if (error) return res.status(code).send({ error });
+
+    return res.status(code).send(updatedFile);
+  }
+
+  static async putUnpublish(req, res) {
+    const { error, code, updatedFile } = await publishUnpublish(
+      req,
+      false,
+    );
+
+    if (error) return res.status(code).send({ error });
+
+    return res.status(code).send(updatedFile);
   }
 }
 

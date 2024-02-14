@@ -2,6 +2,7 @@ import { ObjectId } from 'mongodb';
 import { v4 as uuidv4 } from 'uuid';
 import { promises as fsPromises } from 'fs';
 import dbClient from './db';
+import { getUserByToken } from './user';
 
 export async function getFile(query) {
   const files = await dbClient.filesCollection();
@@ -124,4 +125,60 @@ export async function getFilesOfParentId(query) {
   const filesList = await dbClient.filesCollection();
   const fileList = await filesList.aggregate(query);
   return fileList;
+}
+
+async function updateFile(query, set) {
+  const fileLists = await dbClient.filesCollection();
+  const fileList = await fileLists.findOneAndUpdate(
+    query,
+    set,
+    { returnOriginal: false },
+  );
+  return fileList;
+}
+
+export async function publishUnpublish(request, setPublish) {
+  const { id: fileId } = request.params;
+  const xToken = request.header('X-Token');
+
+  if (!isValidId(fileId)) { return { error: 'Unauthorized', code: 401 }; }
+
+  const user = await getUserByToken(xToken);
+
+  if (!user) { return { error: 'Unauthorized', code: 401 }; }
+
+  const file = await getFile({
+    _id: ObjectId(fileId),
+    userId: ObjectId(user._id),
+  });
+
+  if (!file) return { error: 'Not found', code: 404 };
+
+  const result = await updateFile(
+    {
+      _id: ObjectId(fileId),
+      userId: ObjectId(user._id),
+    },
+    { $set: { isPublic: setPublish } },
+  );
+
+  const {
+    _id: id,
+    userId: resultUserId,
+    name,
+    type,
+    isPublic,
+    parentId,
+  } = result.value;
+
+  const updatedFile = {
+    id,
+    userId: resultUserId,
+    name,
+    type,
+    isPublic,
+    parentId,
+  };
+
+  return { error: null, code: 200, updatedFile };
 }
