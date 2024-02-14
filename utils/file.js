@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { promises as fsPromises } from 'fs';
 import dbClient from './db';
 
-async function getFile(query) {
+export async function getFile(query) {
   const files = await dbClient.filesCollection();
   const file = files.findOne(query);
   return file;
@@ -66,7 +66,7 @@ export async function validateBody(request) {
   return obj;
 }
 
-function processFile(doc) {
+export function processFile(doc) {
   // Changes _id for id and removes localPath
 
   const file = { id: doc._id, ...doc };
@@ -118,4 +118,10 @@ export async function saveFile(userId, fileParams, FOLDER_PATH) {
   const newFile = { id: result.insertedId, ...file };
 
   return { error: null, newFile };
+}
+
+export async function getFilesOfParentId(query) {
+  const filesList = await dbClient.filesCollection();
+  const fileList = await filesList.aggregate(query);
+  return fileList;
 }
