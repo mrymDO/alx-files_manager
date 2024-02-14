@@ -85,7 +85,7 @@ class FilesController {
     }
 
     const pipeline = [
-      { $match: { parentId } },
+      { $match: { parentId, userId: user._id } },
       { $skip: page * 20 },
       {
         $limit: 20,
