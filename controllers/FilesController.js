@@ -79,6 +79,7 @@ class FilesController {
 
       const folder = await getFile({
         _id: ObjectId(parentId),
+        userId: user._id,
       });
 
       if (!folder || folder.type !== 'folder') { return res.status(200).send([]); }
