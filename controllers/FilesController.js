@@ -1,9 +1,12 @@
 import { ObjectId } from 'mongodb';
+import mime from 'mime-types';
 import { getUserByToken } from '../utils/user';
 import {
   validateBody, getFile, processFile,
   isValidId, saveFile, getFilesOfParentId,
   publishUnpublish,
+  isOwnerAndPublic,
+  getFileData,
 } from '../utils/file';
 
 const FOLDER_PATH = process.env.FOLDER_PATH || '/tmp/files_manager';
@@ -125,6 +128,41 @@ class FilesController {
     if (error) return res.status(code).send({ error });
 
     return res.status(code).send(updatedFile);
+  }
+
+  static async getFile(req, res) {
+    const { id: fileId } = req.params;
+    const xToken = req.header('X-Token');
+    const size = req.query.size || 0;
+
+    const user = getUserByToken(xToken);
+
+    if (!user) return res.status(404).send({ error: 'Unauthorized' });
+
+    if (!isValidId(fileId)) { return res.status(404).send({ error: 'Not found' }); }
+
+    const file = await getFile({
+      _id: ObjectId(fileId),
+      userId: user._id,
+    });
+
+    if (!file || !isOwnerAndPublic(file, user._id)) { return res.status(404).send({ error: 'Not found' }); }
+
+    if (file.type === 'folder') {
+      return res
+        .status(400)
+        .send({ error: "A folder doesn't have content" });
+    }
+
+    const { error, code, data } = await getFileData(file, size);
+
+    if (error) return res.status(code).send({ error });
+
+    const mimeType = mime.contentType(file.name);
+
+    res.setHeader('Content-Type', mimeType);
+
+    return res.status(200).send(data);
   }
 }
 
