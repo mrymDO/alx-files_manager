@@ -77,7 +77,7 @@ class FilesController {
     if (Number.isNaN(page)) page = 0;
 
     if (parentId !== 0 && parentId !== '0') {
-      if (!isValidId(parentId)) { return res.status(401).send([]); }
+      if (!isValidId(parentId)) { return res.status(200).send([]); }
 
       parentId = ObjectId(parentId);
 
@@ -137,13 +137,12 @@ class FilesController {
 
     const user = getUserByToken(xToken);
 
-    if (!user) return res.status(404).send({ error: 'Unauthorized' });
+    if (!user) return res.status(401).send({ error: 'Unauthorized' });
 
     if (!isValidId(fileId)) { return res.status(404).send({ error: 'Not found' }); }
 
     const file = await getFile({
       _id: ObjectId(fileId),
-      userId: user._id,
     });
 
     if (!file || !isOwnerAndPublic(file, user._id)) { return res.status(404).send({ error: 'Not found' }); }
