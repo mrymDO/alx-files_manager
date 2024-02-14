@@ -73,7 +73,7 @@ class FilesController {
     if (Number.isNaN(page)) page = 0;
 
     if (parentId !== 0 && parentId !== '0') {
-      if (!isValidId(parentId)) { return res.status(401).send({ error: 'Unauthorized' }); }
+      if (!isValidId(parentId)) { return res.status(401).send([]); }
 
       parentId = ObjectId(parentId);
 
